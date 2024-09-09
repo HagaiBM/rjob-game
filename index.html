@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>חפש את המשרה</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(to bottom right, #e0f7fa, #d1c4e9);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 36px;
+      font-weight: bold;
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .game-container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      max-width: 600px;
+      width: 100%;
+    }
+    button {
+      background-color: #42a5f5;
+      color: white;
+      border: none;
+      padding: 15px 20px;
+      border-radius: 25px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 15px;
+    }
+    button:hover {
+      background-color: #1e88e5;
+      transform: translateY(-3px);
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    .job-description {
+      margin-bottom: 20px;
+    }
+    .job-requirements {
+      margin-bottom: 20px;
+    }
+    .job-button {
+      display: block;
+      background-color: #90caf9;
+      color: #0d47a1;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+    .job-button:hover {
+      background-color: #64b5f6;
+    }
+    .job-button:disabled {
+      background-color: #c8e6c9;
+      color: #2e7d32;
+    }
+    .restart-button {
+      background-color: #ab47bc;
+    }
+    a {
+      margin-top: 20px;
+      color: #1e88e5;
+      text-decoration: underline;
+    }
+    a:hover {
+      color: #0d47a1;
+    }
+  </style>
+</head>
+<body>
+  <h1>ברוכים הבאים למשחק חפש את המשרה</h1>
+
+  <div id="app"></div>
+
+  <script>
+    const jobData = [
+      {
+        title: "מנהל.ת חוזים והתקשרויות בתחום הבינוי והלוגיסטיקה",
+        description: "הובלת תהליכי רכש מורכבים בנושאי בינוי ושירותים",
+        requirements: "תואר ראשון בכלכלה/מנהל עסקים/משפטים, ניסיון של 3 שנים לפחות",
+      },
+      {
+        title: "מהנדס.ת ASIC/FPGA",
+        description: "כתיבת תכן לוגי הכולל תכנון ויישום של עיבוד אות בקצבים גבוהים",
+        requirements: "תואר בהנדסת חשמל/הנדסת מחשבים, 3 שנות ניסיון בפיתוח תכן לוגי",
+      },
+      {
+        title: "מנהל.ת הדרכה דיגיטלית וטכנולוגיות למידה",
+        description: "ניהול והובלת תהליכי למידה דיגיטלית במגוון פלטפורמות",
+        requirements: "תואר בטכנולוגיות למידה או מדעי החברה, 3 שנות ניסיון בניהול פרויקטי הדרכות דיגיטליות",
+      },
+      {
+        title: "מהנדס.ת מכונות לתחום חיבורים ועיבודים פלסטיים",
+        description: "תכן מתקני ייצור, הכנת תכניות וביצוע סימולציות עיבוד",
+        requirements: "מהנדס.ת מכונות, 3-5 שנות ניסיון בתכן של מתקנים ותהליכי ייצור",
+      },
+      {
+        title: "מוביל.ת מערכות דלק",
+        description: "הובלת פעילות הפיתוח וההנדסה של מכלולים ומערכות טילאיות",
+        requirements: "תואר ראשון בהנדסת מכונות/אווירונאוטיקה, 3 שנות ניסיון בהובלת תהליכי פיתוח",
+      }
+    ];
+
+    class JobSearchGame extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {
+          currentJob: null,
+          guessedJobs: [],
+          gameStarted: false,
+          gameFinished: false,
+        };
+      }
+
+      startGame = () => {
+        this.setState({ gameStarted: true, currentJob: this.getRandomJob() });
+      };
+
+      getRandomJob = () => {
+        const remainingJobs = jobData;
+        return remainingJobs[Math.floor(Math.random() * remainingJobs.length)];
+      };
+
+      handleGuess = (guessedTitle) => {
+        const { currentJob, guessedJobs } = this.state;
+        if (guessedTitle === currentJob.title) {
+          const newGuessedJobs = [...guessedJobs, currentJob];
+          this.setState({ guessedJobs: newGuessedJobs });
+        }
+      };
+
+      restartGame = () => {
+        this.setState({
+          currentJob: this.getRandomJob(),
+          gameStarted: true,
+          gameFinished: false
+        });
+      };
+
+      render() {
+        const { gameStarted, currentJob } = this.state;
+        return (
+          <div className="game-container">
+            {!gameStarted && (
+              <button onClick={this.startGame}>התחל משחק</button>
+            )}
+
+            {gameStarted && currentJob && (
+              <div>
+                <h2>תיאור המשרה:</h2>
+                <p className="job-description">{currentJob.description}</p>
+                <h3>דרישות:</h3>
+                <p className="job-requirements">{currentJob.requirements}</p>
+
+                {jobData.map((job, index) => (
+                  <button
+                    key={index}
+                    className="job-button"
+                    onClick={() => this.handleGuess(job.title)}
+                  >
+                    {job.title}
+                  </button>
+                ))}
+
+                <button className="restart-button" onClick={this.restartGame}>
+                  שחק שוב
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      }
+    }
+
+    // Run the app when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      ReactDOM.render(<JobSearchGame />, document.getElementById('app'));
+    });
+  </script>
+
+  <!-- React and ReactDOM from CDN, ensure loading after DOM is ready -->
+  <script src="https://unpkg.com/react@17/umd/react.production.min.js" defer></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" defer></script>
+
+  <!-- Add your GitHub Pages URL here -->
+  <a href="https://your-github-pages-url.com" target="_blank">בקר באתר שלנו לעוד משרות מעניינות</a>
+</body>
+</html>
