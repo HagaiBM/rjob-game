@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="he">
+<html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -64,6 +64,8 @@
       margin: 5px 0;
       border-radius: 10px;
       transition: all 0.3s ease;
+      width: 100%;
+      text-align: right;
     }
     .job-button:hover {
       background-color: #64b5f6;
@@ -83,12 +85,22 @@
     a:hover {
       color: #0d47a1;
     }
+    .feedback {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .correct {
+      color: #2e7d32;
+    }
+    .incorrect {
+      color: #c62828;
+    }
   </style>
 </head>
 <body>
-  <h1>ברוכים הבאים למשחק חפש את המשרה</h1>
+  <h1> ברוכים הבאים למשחק חפש את המשרה של רפאל</h1>
 
-  <div id="app"></div>
+  <div id="app" class="game-container"></div>
 
   <script>
     const jobData = [
@@ -119,88 +131,76 @@
       }
     ];
 
-    class JobSearchGame extends React.Component {
-      constructor(props) {
-        super(props);
-        this.state = {
-          currentJob: null,
-          guessedJobs: [],
-          gameStarted: false,
-          gameFinished: false,
-        };
-      }
+    let currentJob;
+    let guessedJobs = [];
+    let score = 0;
 
-      startGame = () => {
-        this.setState({ gameStarted: true, currentJob: this.getRandomJob() });
-      };
+    function getRandomJob() {
+      const remainingJobs = jobData.filter(job => !guessedJobs.includes(job));
+      return remainingJobs[Math.floor(Math.random() * remainingJobs.length)];
+    }
 
-      getRandomJob = () => {
-        const remainingJobs = jobData;
-        return remainingJobs[Math.floor(Math.random() * remainingJobs.length)];
-      };
+    function startGame() {
+      currentJob = getRandomJob();
+      guessedJobs = [];
+      score = 0;
+      renderGame();
+    }
 
-      handleGuess = (guessedTitle) => {
-        const { currentJob, guessedJobs } = this.state;
-        if (guessedTitle === currentJob.title) {
-          const newGuessedJobs = [...guessedJobs, currentJob];
-          this.setState({ guessedJobs: newGuessedJobs });
+    function handleGuess(guessedTitle) {
+      if (guessedTitle === currentJob.title) {
+        score++;
+        guessedJobs.push(currentJob);
+        if (guessedJobs.length === jobData.length) {
+          renderGameOver();
+        } else {
+          currentJob = getRandomJob();
+          renderGame('כל הכבוד! ניחשת נכון.');
         }
-      };
-
-      restartGame = () => {
-        this.setState({
-          currentJob: this.getRandomJob(),
-          gameStarted: true,
-          gameFinished: false
-        });
-      };
-
-      render() {
-        const { gameStarted, currentJob } = this.state;
-        return (
-          <div className="game-container">
-            {!gameStarted && (
-              <button onClick={this.startGame}>התחל משחק</button>
-            )}
-
-            {gameStarted && currentJob && (
-              <div>
-                <h2>תיאור המשרה:</h2>
-                <p className="job-description">{currentJob.description}</p>
-                <h3>דרישות:</h3>
-                <p className="job-requirements">{currentJob.requirements}</p>
-
-                {jobData.map((job, index) => (
-                  <button
-                    key={index}
-                    className="job-button"
-                    onClick={() => this.handleGuess(job.title)}
-                  >
-                    {job.title}
-                  </button>
-                ))}
-
-                <button className="restart-button" onClick={this.restartGame}>
-                  שחק שוב
-                </button>
-              </div>
-            )}
-          </div>
-        );
+      } else {
+        renderGame('טעות. נסה שוב!');
       }
     }
 
-    // Run the app when DOM is ready
-    document.addEventListener('DOMContentLoaded', function() {
-      ReactDOM.render(<JobSearchGame />, document.getElementById('app'));
-    });
+    function renderGame(feedback = '') {
+      const app = document.getElementById('app');
+      app.innerHTML = `
+        <h2>תיאור המשרה:</h2>
+        <p class="job-description">${currentJob.description}</p>
+        <h3>דרישות:</h3>
+        <p class="job-requirements">${currentJob.requirements}</p>
+        ${jobData.map((job, index) => `
+          <button class="job-button" onclick="handleGuess('${job.title}')">
+            ${job.title}
+          </button>
+        `).join('')}
+        <p class="feedback">${feedback}</p>
+        <p>ניקוד: ${score} / ${jobData.length}</p>
+      `;
+    }
+
+    function renderGameOver() {
+      const app = document.getElementById('app');
+      app.innerHTML = `
+        <h2>כל הכבוד!</h2>
+        <p>סיימת את המשחק עם ניקוד של ${score} מתוך ${jobData.length}.</p>
+        <button class="restart-button" onclick="startGame()">
+          שחק שוב
+        </button>
+      `;
+    }
+
+    function renderStartScreen() {
+      const app = document.getElementById('app');
+      app.innerHTML = `
+        <button onclick="startGame()">התחל משחק</button>
+      `;
+    }
+
+    // Initialize the game
+    renderStartScreen();
   </script>
 
-  <!-- React and ReactDOM from CDN, ensure loading after DOM is ready -->
-  <script src="https://unpkg.com/react@17/umd/react.production.min.js" defer></script>
-  <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" defer></script>
-
-  <!-- Add your GitHub Pages URL here -->
-  <a href="https://your-github-pages-url.com" target="_blank">בקר באתר שלנו לעוד משרות מעניינות</a>
+  <a href="https://career.rafael.co.il/" target="_blank">בקר באתר שלנו לעוד משרות מעניינות</a>
 </body>
 </html>
